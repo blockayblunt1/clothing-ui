@@ -47,14 +47,12 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/men" className="text-gray-400 hover:text-white transition-colors">
-                  {/* eslint-disable-next-line react/no-unescaped-entities */}
-                  Men's Collection
+                  Men&apos;s Collection
                 </Link>
               </li>
               <li>
                 <Link href="/women" className="text-gray-400 hover:text-white transition-colors">
-                  {/* eslint-disable-next-line react/no-unescaped-entities */}
-                  Women's Collection
+                  Women&apos;s Collection
                 </Link>
               </li>
               <li>
@@ -86,7 +84,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/returns" className="text-gray-400 hover:text-white transition-colors">
-                  Returns & Exchanges
+                  Returns &amp; Exchanges
                 </Link>
               </li>
               <li>
