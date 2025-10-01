@@ -24,7 +24,6 @@ export default function Home() {
     price: '',
     image: ''
   });
-  const [message, setMessage] = useState('');
   const [mounted, setMounted] = useState(false);
   const [toast, setToast] = useState({ isVisible: false, message: '', type: 'success' as 'success' | 'error' });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -32,7 +31,6 @@ export default function Home() {
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ isVisible: true, message, type });
-    setMessage(''); // Clear the old message display
   };
 
   const closeToast = () => {
@@ -95,7 +93,6 @@ export default function Home() {
   const resetForm = () => {
     setFormData({ name: '', description: '', price: '', image: '' });
     setEditingProduct(null);
-    setMessage('');
   };
 
   const handleEdit = (product: Product) => {
