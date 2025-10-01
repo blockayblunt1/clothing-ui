@@ -47,12 +47,12 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/men" className="text-gray-400 hover:text-white transition-colors">
-                  Men's Collection
+                  Men&#39; Collection
                 </Link>
               </li>
               <li>
                 <Link href="/women" className="text-gray-400 hover:text-white transition-colors">
-                  Women's Collection
+                  Women&#39; Collection
                 </Link>
               </li>
               <li>
