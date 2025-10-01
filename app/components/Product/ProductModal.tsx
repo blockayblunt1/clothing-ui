@@ -84,9 +84,11 @@ export default function ProductModal({ product, isOpen, onClose, onEdit, onDelet
           </button>
           
           {product.image ? (
-            <img
+            <Image
               src={product.image}
               alt={product.name}
+              width={600}
+              height={600}
               className="max-w-full max-h-full object-contain"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
