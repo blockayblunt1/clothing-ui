@@ -1,5 +1,5 @@
 'use client';
-
+// Build fix for Vercel deployment
 import { useEffect, useState } from 'react';
 import Toast from './components/UI/Toast';
 import ProductModal from './components/Product/ProductModal';
