@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -84,11 +83,9 @@ export default function ProductModal({ product, isOpen, onClose, onEdit, onDelet
           </button>
           
           {product.image ? (
-            <Image
+            <img
               src={product.image}
               alt={product.name}
-              width={600}
-              height={600}
               className="max-w-full max-h-full object-contain"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
