@@ -10,8 +10,8 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/Auth/login`, {
         method: 'POST',
@@ -67,18 +67,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('auth_token', data.token);
         localStorage.setItem('auth_user', JSON.stringify(userData));
         
-        return true;
+        return { success: true };
       } else {
-        return false;
+        const errorText = await response.text();
+        return { success: false, error: errorText || 'Login failed' };
       }
     } catch (error) {
       console.error('Login error:', error);
-      return false;
+      return { success: false, error: 'Network error occurred' };
     }
   };
 
-  const register = async (email: string, password: string): Promise<boolean> => {
+  const register = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
+      console.log('Attempting registration for:', email);
+      console.log('API Base URL:', process.env.NEXT_PUBLIC_API_BASE);
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/Auth/register`, {
         method: 'POST',
         headers: {
@@ -87,6 +91,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('Registration response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
         const userData = {
@@ -101,13 +107,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('auth_token', data.token);
         localStorage.setItem('auth_user', JSON.stringify(userData));
         
-        return true;
+        return { success: true };
       } else {
-        return false;
+        const errorText = await response.text();
+        console.log('Registration error response:', errorText);
+        return { success: false, error: errorText || 'Registration failed' };
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      return false;
+      console.error('Registration network error:', error);
+      return { success: false, error: 'Network error occurred' };
     }
   };
 

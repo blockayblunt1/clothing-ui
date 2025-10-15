@@ -45,14 +45,14 @@ export default function RegisterPage() {
     }
 
     try {
-      const success = await register(formData.email, formData.password);
-      if (success) {
+      const result = await register(formData.email, formData.password);
+      if (result.success) {
         showToast('Account created successfully!', 'success');
         setTimeout(() => {
           router.push('/');
         }, 1000);
       } else {
-        showToast('Registration failed. Email may already be in use.', 'error');
+        showToast(result.error || 'Registration failed. Please try again.', 'error');
       }
     } catch (error) {
       showToast('An error occurred. Please try again.', 'error');

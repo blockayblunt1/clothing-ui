@@ -30,14 +30,14 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const success = await login(formData.email, formData.password);
-      if (success) {
+      const result = await login(formData.email, formData.password);
+      if (result.success) {
         showToast('Login successful!', 'success');
         setTimeout(() => {
           router.push('/');
         }, 1000);
       } else {
-        showToast('Invalid email or password. Please try again.', 'error');
+        showToast(result.error || 'Invalid email or password. Please try again.', 'error');
       }
     } catch (error) {
       showToast('An error occurred. Please try again.', 'error');
