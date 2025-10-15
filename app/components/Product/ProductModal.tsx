@@ -18,9 +18,11 @@ interface ProductModalProps {
   onClose: () => void;
   onEdit: (product: Product) => void;
   onDelete: (id: number) => void;
+  onAddToCart: (productId: number) => void;
+  isAuthenticated: boolean;
 }
 
-export default function ProductModal({ product, isOpen, onClose, onEdit, onDelete }: ProductModalProps) {
+export default function ProductModal({ product, isOpen, onClose, onEdit, onDelete, onAddToCart, isAuthenticated }: ProductModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -212,28 +214,44 @@ export default function ProductModal({ product, isOpen, onClose, onEdit, onDelet
             <div className="flex space-x-2">
               <button
                 onClick={() => {
-                  onEdit(product);
+                  onAddToCart(product.id);
                   onClose();
                 }}
-                className="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm flex items-center justify-center space-x-2"
+                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm flex items-center justify-center space-x-2"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.293 1.293A1 1 0 005 15h12m0 0a2 2 0 104 0m-4 0a2 2 0 104 0" />
                 </svg>
-                <span>Edit</span>
+                <span>Add to Cart</span>
               </button>
-              <button
-                onClick={() => {
-                  onDelete(product.id);
-                  onClose();
-                }}
-                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all text-sm flex items-center justify-center space-x-2"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                <span>Delete</span>
-              </button>
+              {isAuthenticated && (
+                <>
+                  <button
+                    onClick={() => {
+                      onEdit(product);
+                      onClose();
+                    }}
+                    className="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm flex items-center justify-center space-x-2"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      onDelete(product.id);
+                      onClose();
+                    }}
+                    className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all text-sm flex items-center justify-center space-x-2"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span>Delete</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

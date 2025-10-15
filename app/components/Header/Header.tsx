@@ -2,14 +2,24 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useAuth } from '../../contexts/AuthContext';
+import { useCart } from '../../contexts/CartContext';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
+  const { getTotalItems } = useCart();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  const cartItemCount = getTotalItems();
 
   if (!mounted) {
     return (
@@ -38,65 +48,69 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link href="/" className="text-2xl font-bold text-gray-900">
+            <Link href="/" className="text-2xl font-bold text-blue-600 hover:text-blue-700">
               StyleHub
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <Link href="/" className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium">
-              Home
+            <Link href="/" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+              Products
             </Link>
-            <Link href="/products" className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium">
-              All Products
-            </Link>
-            <Link href="/men" className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium">
-              Men
-            </Link>
-            <Link href="/women" className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium">
-              Women
-            </Link>
-            <Link href="/kids" className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium">
-              Kids
-            </Link>
+            {isAuthenticated && (
+              <Link href="/orders" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                Orders
+              </Link>
+            )}
           </nav>
-
-          {/* Search Bar */}
-          <div className="flex-1 max-w-lg mx-8 hidden lg:block">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="w-full px-4 py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
 
           {/* User Actions */}
           <div className="flex items-center space-x-4">
-            {/* User Account */}
-            <button className="p-2 text-gray-700 hover:text-gray-900">
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </button>
+            {isAuthenticated && (
+              <Link
+                href="/cart"
+                className="relative text-gray-700 hover:text-blue-600 p-2"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.293 1.293A1 1 0 005 15h12m0 0a2 2 0 104 0m-4 0a2 2 0 104 0" />
+                </svg>
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
+              </Link>
+            )}
 
-            {/* Shopping Cart */}
-            <button className="p-2 text-gray-700 hover:text-gray-900 relative">
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m.6 0L7 13m0 0l-2.5 5H19M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8" />
-              </svg>
-              {/* Cart Badge */}
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                3
-              </span>
-            </button>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-gray-700">
+                  Welcome, {user?.email}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-sm font-medium"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link
+                  href="/login"
+                  className="text-gray-700 hover:text-blue-600 px-3 py-1 rounded-md text-sm font-medium"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
 
             {/* Mobile menu button */}
             <button
@@ -119,29 +133,18 @@ export default function Header() {
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200">
               <Link href="/" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
-                Home
+                Products
               </Link>
-              <Link href="/products" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
-                All Products
-              </Link>
-              <Link href="/men" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
-                Men
-              </Link>
-              <Link href="/women" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
-                Women
-              </Link>
-              <Link href="/kids" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
-                Kids
-              </Link>
-              
-              {/* Mobile Search */}
-              <div className="px-3 py-2">
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              {isAuthenticated && (
+                <>
+                  <Link href="/orders" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                    Orders
+                  </Link>
+                  <Link href="/cart" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                    Cart {cartItemCount > 0 && `(${cartItemCount})`}
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

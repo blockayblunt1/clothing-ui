@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import Toast from './components/UI/Toast';
 import ProductModal from './components/Product/ProductModal';
+import Header from './components/Header/Header';
+import { useAuth } from './contexts/AuthContext';
+import { useCart } from './contexts/CartContext';
 
 interface Product {
   id: number;
@@ -28,6 +31,9 @@ export default function Home() {
   const [toast, setToast] = useState({ isVisible: false, message: '', type: 'success' as 'success' | 'error' });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const { isAuthenticated, token } = useAuth();
+  const { addToCart } = useCart();
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ isVisible: true, message, type });
@@ -105,8 +111,28 @@ export default function Home() {
     });
   };
 
+  const handleAddToCart = async (productId: number) => {
+    if (!isAuthenticated) {
+      showToast('Please login to add items to cart', 'error');
+      return;
+    }
+
+    const success = await addToCart(productId, 1);
+    if (success) {
+      showToast('Product added to cart!', 'success');
+    } else {
+      showToast('Failed to add product to cart', 'error');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isAuthenticated) {
+      showToast('Please login to manage products', 'error');
+      return;
+    }
+    
     const priceValue = parseFloat(formData.price);
     
     if (isNaN(priceValue) || priceValue <= 0) {
@@ -129,6 +155,7 @@ export default function Home() {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify(productData)
         });
@@ -138,6 +165,7 @@ export default function Home() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify(productData)
         });
@@ -157,10 +185,18 @@ export default function Home() {
   };
 
   const handleDelete = async (id: number) => {
+    if (!isAuthenticated) {
+      showToast('Please login to manage products', 'error');
+      return;
+    }
+    
     if (confirm('Are you sure you want to delete this product?')) {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/Product/${id}`, {
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
         });
 
         if (response.ok) {
@@ -183,7 +219,9 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
+    <>
+      <Header />
+      <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -196,12 +234,13 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Product Form */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4">
-                {editingProduct ? 'Update Product' : 'Add New Product'}
-              </h2>
+          {/* Product Form - Only visible to authenticated users */}
+          {isAuthenticated && (
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-semibold mb-4">
+                  {editingProduct ? 'Update Product' : 'Add New Product'}
+                </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -279,11 +318,12 @@ export default function Home() {
                   )}
                 </div>
               </form>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Products List */}
-          <div className="lg:col-span-2">
+          <div className={isAuthenticated ? "lg:col-span-2" : "lg:col-span-3"}>
             <div className="bg-white rounded-lg shadow-md">
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
@@ -329,21 +369,34 @@ export default function Home() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleEdit(product);
+                              handleAddToCart(product.id);
                             }}
-                            className="px-3 py-1 text-sm bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 transition-colors"
+                            className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
                           >
-                            Edit
+                            Add to Cart
                           </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(product.id);
-                            }}
-                            className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                          >
-                            Delete
-                          </button>
+                          {isAuthenticated && (
+                            <>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEdit(product);
+                                }}
+                                className="px-3 py-1 text-sm bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 transition-colors"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(product.id);
+                                }}
+                                className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                              >
+                                Delete
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -385,7 +438,10 @@ export default function Home() {
         onClose={closeProductModal}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onAddToCart={handleAddToCart}
+        isAuthenticated={isAuthenticated}
       />
-    </div>
+      </div>
+    </>
   );
 }
